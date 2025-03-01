@@ -20,6 +20,61 @@
 # The cd command changes to that directory, but doesn't output anything.
 # By running pwd after the cd, you get the absolute (full) path of that directory as it exists in the filesystem.
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-filter="$1"
-echo "$script_dir"
+filter=""
+dry="0"
+
+while [[ $# > 0 ]]; do # $# represents the number of arguments
+    if [[ $1 == '--dry' ]]; then
+        dry="1"
+    else
+        filter="$1"
+    fi
+    shift # remove the 1st argument from arguments list
+done
+
+# declare a funciton
+log(){
+    if [[ $dry == "1" ]]; then
+        echo "[DRY_RUN]: $@" #"[DRY_RUN]:" followed by all arguments passed to the function ($@).
+    else 
+        echo "$0"
+    fi
+}
+
+# declare a funciton
+execute(){
+    log "goint to exectute $@" #The log function is called with "execute"
+    if [[ $dry == "1" ]]; then
+       return
+    fi
+    "$@"
+}
+log "$script_dir -- $filter"
+
+# This command uses the find utility to search for files in a specific directory with a set of filters. Let me break it down:
+
+# find ./runs - Start searching in the directory named "runs" that's in your current directory (the ./ prefix means "current directory").
+# -maxdepth 1 - Only look at files/directories directly inside the "runs" directory without going into any subdirectories. This limits the search to just one level deep.
+# -mindepth 1 - Only look at items that are at least one level below the starting point. This excludes the "runs" directory itself from the results.
+# -executable - Only find files that have executable permissions (files that you can run as programs).
+# -type f - Only include regular files in the results, not directories, symbolic links, or other special file types.
+# scripts=$(find ./runs -maxdepth  1 -mindepth 1 -executable -type f) #get all scripts The GNU version of find (commonly found on Linux) supports the -executable option,
+scripts=$(find ./runs -maxdepth  1 -mindepth 1 -perm +0111)
+#"If the content of the $script variable does NOT contain the string 'filter', then execute the following commands in the conditional block."
+# echo "$script" - This outputs the contents of the variable named script.
+# | - This is a pipe that takes the output from the left command and sends it as input to the right command.
+# grep -qv "filter" - This uses the grep tool with specific options:
+# -q: Quiet mode - suppresses normal output (doesn't print matching lines)
+# -v: Invert match - finds lines that do NOT contain the pattern
+# "filter": The pattern to search for (in this case, the literal word "filter")
+
+for script in $scripts; do
+    if echo "$script" | grep -qv "$filter"; then 
+        log "filtering $script"
+        continue
+    fi
+
+    execute ./$script #This line only executes if the previous condition was false 
+done
+
 

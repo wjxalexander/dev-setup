@@ -1,5 +1,6 @@
- #!/usr/bin/env bash
+#!/usr/bin/env bash
 
+# https://frontendmasters.github.io/dev-prod-2/lessons/your-env/roll-your-own
 # This line is finding and storing the absolute directory path of the script that's currently running. 
 # Let me break down how it works from the inside out:
 # ${BASH_SOURCE[0]} - This is a Bash variable that contains the path to the current script file as it was called.
@@ -49,6 +50,7 @@ execute(){
     fi
     "$@" #$@: exec everything
 }
+cd $script_dir
 log "$script_dir -- $filter"
 
 # This command uses the find utility to search for files in a specific directory with a set of filters. Let me break it down:

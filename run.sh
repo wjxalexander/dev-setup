@@ -37,17 +37,17 @@ log(){
     if [[ $dry == "1" ]]; then
         echo "[DRY_RUN]: $@" #"[DRY_RUN]:" followed by all arguments passed to the function ($@).
     else 
-        echo "$0"
+        echo "$@"
     fi
 }
 
 # declare a funciton
 execute(){
-    log "goint to exectute $@" #The log function is called with "execute"
+    log "goint to exectute $@" #The log function is called with "execute" 
     if [[ $dry == "1" ]]; then
        return
     fi
-    "$@"
+    "$@" #$@: everithing
 }
 log "$script_dir -- $filter"
 

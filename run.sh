@@ -47,7 +47,7 @@ execute(){
     if [[ $dry == "1" ]]; then
        return
     fi
-    "$@" #$@: everithing
+    "$@" #$@: exec everything
 }
 log "$script_dir -- $filter"
 
